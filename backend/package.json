@@ -1,5 +1,5 @@
 {
-  "name": "lotti-backend",
+  "name": "lottrack-backend",
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",

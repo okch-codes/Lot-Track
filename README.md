@@ -1,4 +1,4 @@
-# Lotti
+# LotTrack
 
 Food production lot tracking app. Create recipes with ingredients, generate lots with unique lot numbers, and track ingredient lot numbers across productions.
 

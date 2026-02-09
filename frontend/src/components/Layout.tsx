@@ -5,7 +5,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="app">
       <nav className="navbar">
-        <div className="nav-brand">Lotti</div>
+        <div className="nav-brand">LotTrack</div>
         <div className="nav-links">
           <NavLink to="/recipes">Recipes</NavLink>
           <NavLink to="/ingredients">Ingredients</NavLink>
