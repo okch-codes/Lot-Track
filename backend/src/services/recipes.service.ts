@@ -20,6 +20,26 @@ export async function getAllRecipes(
   const query = `SELECT * FROM recipes${where} ORDER BY name LIMIT $${limitIdx} OFFSET $${limitIdx + 1}`;
   const { rows } = await pool.query<Recipe>(query, params);
 
+  if (rows.length > 0) {
+    const ids = rows.map(r => r.id);
+    const { rows: riRows } = await pool.query<Ingredient & { recipe_id: number }>(
+      `SELECT i.*, ri.recipe_id FROM ingredients i
+       JOIN recipe_ingredients ri ON ri.ingredient_id = i.id
+       WHERE ri.recipe_id = ANY($1)
+       ORDER BY ri.sort_order`,
+      [ids]
+    );
+    const ingredientsByRecipe = new Map<number, Ingredient[]>();
+    for (const row of riRows) {
+      const recipeId = row.recipe_id;
+      if (!ingredientsByRecipe.has(recipeId)) ingredientsByRecipe.set(recipeId, []);
+      ingredientsByRecipe.get(recipeId)!.push(row);
+    }
+    for (const recipe of rows) {
+      recipe.ingredients = ingredientsByRecipe.get(recipe.id) ?? [];
+    }
+  }
+
   return { data: rows, total };
 }
 
