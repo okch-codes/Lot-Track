@@ -285,6 +285,21 @@ button:disabled {
   margin-bottom: 0.75rem;
 }
 
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0;
+}
+
+.pagination span {
+  font-size: 0.9rem;
+  color: #666;
+}
+
 /* Error */
 .error {
   color: #e74c3c;

@@ -2,6 +2,11 @@ import { Recipe, Ingredient, Lot, LotHistoryEntry } from '../types';
 
 const BASE = '/api';
 
+interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+}
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${url}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -16,11 +21,12 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const recipesApi = {
-  list: (search?: string) => {
+  list: (search?: string, page = 1, limit = 50) => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
-    const qs = params.toString();
-    return request<Recipe[]>(`/recipes${qs ? `?${qs}` : ''}`);
+    params.set('page', String(page));
+    params.set('limit', String(limit));
+    return request<PaginatedResponse<Recipe>>(`/recipes?${params}`);
   },
   get: (id: number) => request<Recipe>(`/recipes/${id}`),
   create: (data: { name: string; ingredients: string[] }) =>
@@ -34,11 +40,12 @@ export const recipesApi = {
 };
 
 export const ingredientsApi = {
-  list: (search?: string) => {
+  list: (search?: string, page = 1, limit = 50) => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
-    const qs = params.toString();
-    return request<Ingredient[]>(`/ingredients${qs ? `?${qs}` : ''}`);
+    params.set('page', String(page));
+    params.set('limit', String(limit));
+    return request<PaginatedResponse<Ingredient>>(`/ingredients?${params}`);
   },
   getLotHistory: (id: number) =>
     request<LotHistoryEntry[]>(`/ingredients/${id}/lot-history`),
@@ -50,13 +57,14 @@ export const ingredientsApi = {
 };
 
 export const lotsApi = {
-  list: (search?: string, from?: string, to?: string) => {
+  list: (search?: string, from?: string, to?: string, page = 1, limit = 50) => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (from) params.set('from', from);
     if (to) params.set('to', to);
-    const qs = params.toString();
-    return request<Lot[]>(`/lots${qs ? `?${qs}` : ''}`);
+    params.set('page', String(page));
+    params.set('limit', String(limit));
+    return request<PaginatedResponse<Lot>>(`/lots?${params}`);
   },
   get: (id: number) => request<Lot>(`/lots/${id}`),
   nextNumber: () => request<{ next_number: string }>('/lots/next-number', { method: 'POST' }),

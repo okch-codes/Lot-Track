@@ -1,10 +1,10 @@
 import pool from '../config/db';
 import { Lot, CreateLotBody } from '../types';
+import { AppError } from '../utils/AppError';
 
-export async function getAllLots(search?: string, from?: string, to?: string): Promise<Lot[]> {
-  let query = `SELECT l.*, r.name as recipe_name
-     FROM lots l
-     JOIN recipes r ON r.id = l.recipe_id`;
+export async function getAllLots(
+  search?: string, from?: string, to?: string, page = 1, limit = 50
+): Promise<{ data: Lot[]; total: number }> {
   const params: string[] = [];
   const conditions: string[] = [];
 
@@ -21,12 +21,20 @@ export async function getAllLots(search?: string, from?: string, to?: string): P
     params.push(to);
     conditions.push(`l.created_at < ($${params.length}::date + interval '1 day')`);
   }
-  if (conditions.length > 0) {
-    query += ' WHERE ' + conditions.join(' AND ');
-  }
-  query += ' ORDER BY l.created_at DESC';
+
+  const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
+  const baseFrom = ` FROM lots l JOIN recipes r ON r.id = l.recipe_id`;
+
+  const countResult = await pool.query(`SELECT COUNT(*)${baseFrom}${where}`, params);
+  const total = parseInt(countResult.rows[0].count, 10);
+
+  const offset = (page - 1) * limit;
+  params.push(String(limit), String(offset));
+  const limitIdx = params.length - 1;
+  const query = `SELECT l.*, r.name as recipe_name${baseFrom}${where} ORDER BY l.created_at DESC LIMIT $${limitIdx} OFFSET $${limitIdx + 1}`;
   const { rows } = await pool.query<Lot>(query, params);
-  return rows;
+
+  return { data: rows, total };
 }
 
 export async function getLotById(id: number): Promise<Lot | null> {
@@ -82,7 +90,7 @@ export async function createLot(body: CreateLotBody): Promise<Lot> {
       [body.recipe_id, today]
     );
     if (existing.length > 0) {
-      throw new Error('A lot for this recipe already exists today');
+      throw new AppError(409, 'A lot for this recipe already exists today');
     }
 
     const lotNumber = await getNextLotNumberWithClient(client);

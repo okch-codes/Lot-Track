@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
+import logger from '../utils/logger';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -13,7 +14,7 @@ export async function runMigrations(): Promise<void> {
     if (file.endsWith('.sql')) {
       const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf-8');
       await pool.query(sql);
-      console.log(`Migration applied: ${file}`);
+      logger.info(`Migration applied: ${file}`);
     }
   }
 }

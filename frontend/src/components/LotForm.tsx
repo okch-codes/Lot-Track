@@ -18,7 +18,7 @@ export default function LotForm({ editId }: Props) {
   const [loading, setLoading] = useState(isEdit);
 
   useEffect(() => {
-    recipesApi.list().then(setRecipes);
+    recipesApi.list(undefined, 1, 200).then((res) => setRecipes(res.data));
   }, []);
 
   useEffect(() => {

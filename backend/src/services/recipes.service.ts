@@ -1,26 +1,26 @@
 import pool from '../config/db';
 import { Recipe, Ingredient } from '../types';
 
-export async function getAllRecipes(search?: string): Promise<Recipe[]> {
-  let query = 'SELECT * FROM recipes';
+export async function getAllRecipes(
+  search?: string, page = 1, limit = 50
+): Promise<{ data: Recipe[]; total: number }> {
   const params: string[] = [];
+  let where = '';
   if (search) {
     params.push(`%${search}%`);
-    query += ` WHERE name ILIKE $1`;
+    where = ` WHERE name ILIKE $1`;
   }
-  query += ' ORDER BY name';
-  const { rows: recipes } = await pool.query<Recipe>(query, params);
-  for (const recipe of recipes) {
-    const { rows: ingredients } = await pool.query<Ingredient>(
-      `SELECT i.* FROM ingredients i
-       JOIN recipe_ingredients ri ON ri.ingredient_id = i.id
-       WHERE ri.recipe_id = $1
-       ORDER BY ri.sort_order`,
-      [recipe.id]
-    );
-    recipe.ingredients = ingredients;
-  }
-  return recipes;
+
+  const countResult = await pool.query(`SELECT COUNT(*) FROM recipes${where}`, params);
+  const total = parseInt(countResult.rows[0].count, 10);
+
+  const offset = (page - 1) * limit;
+  params.push(String(limit), String(offset));
+  const limitIdx = params.length - 1;
+  const query = `SELECT * FROM recipes${where} ORDER BY name LIMIT $${limitIdx} OFFSET $${limitIdx + 1}`;
+  const { rows } = await pool.query<Recipe>(query, params);
+
+  return { data: rows, total };
 }
 
 export async function getRecipeById(id: number): Promise<Recipe | null> {

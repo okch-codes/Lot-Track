@@ -1,16 +1,26 @@
 import pool from '../config/db';
 import { Ingredient } from '../types';
 
-export async function getAllIngredients(search?: string): Promise<Ingredient[]> {
-  let query = 'SELECT * FROM ingredients';
+export async function getAllIngredients(
+  search?: string, page = 1, limit = 50
+): Promise<{ data: Ingredient[]; total: number }> {
   const params: string[] = [];
+  let where = '';
   if (search) {
     params.push(`%${search}%`);
-    query += ` WHERE name ILIKE $1`;
+    where = ` WHERE name ILIKE $1`;
   }
-  query += ' ORDER BY name';
+
+  const countResult = await pool.query(`SELECT COUNT(*) FROM ingredients${where}`, params);
+  const total = parseInt(countResult.rows[0].count, 10);
+
+  const offset = (page - 1) * limit;
+  params.push(String(limit), String(offset));
+  const limitIdx = params.length - 1;
+  const query = `SELECT * FROM ingredients${where} ORDER BY name LIMIT $${limitIdx} OFFSET $${limitIdx + 1}`;
   const { rows } = await pool.query<Ingredient>(query, params);
-  return rows;
+
+  return { data: rows, total };
 }
 
 export async function getLotHistory(ingredientId: number) {
