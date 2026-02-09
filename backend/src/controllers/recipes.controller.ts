@@ -25,7 +25,12 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     }
     const recipe = await recipesService.createRecipe(name, ingredients);
     res.status(201).json(recipe);
-  } catch (err) { next(err); }
+  } catch (err: any) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'A recipe with this name already exists' });
+    }
+    next(err);
+  }
 }
 
 export async function update(req: Request, res: Response, next: NextFunction) {
@@ -37,7 +42,12 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     const recipe = await recipesService.updateRecipe(Number(req.params.id), name, ingredients);
     if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
     res.json(recipe);
-  } catch (err) { next(err); }
+  } catch (err: any) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'A recipe with this name already exists' });
+    }
+    next(err);
+  }
 }
 
 export async function remove(req: Request, res: Response, next: NextFunction) {

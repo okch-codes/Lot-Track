@@ -44,15 +44,15 @@ export async function createRecipe(name: string, ingredientNames: string[]): Pro
     await client.query('BEGIN');
     const { rows: [recipe] } = await client.query<Recipe>(
       'INSERT INTO recipes (name) VALUES ($1) RETURNING *',
-      [name]
+      [name.trim().toLowerCase()]
     );
     const ingredients: Ingredient[] = [];
     for (let i = 0; i < ingredientNames.length; i++) {
       const { rows: [ingredient] } = await client.query<Ingredient>(
         `INSERT INTO ingredients (name) VALUES ($1)
-         ON CONFLICT (name) DO UPDATE SET updated_at = NOW()
+         ON CONFLICT ((LOWER(name))) DO UPDATE SET name = EXCLUDED.name, updated_at = NOW()
          RETURNING *`,
-        [ingredientNames[i].trim()]
+        [ingredientNames[i].trim().toLowerCase()]
       );
       await client.query(
         'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order) VALUES ($1, $2, $3)',
@@ -77,7 +77,7 @@ export async function updateRecipe(id: number, name: string, ingredientNames: st
     await client.query('BEGIN');
     const { rows } = await client.query<Recipe>(
       'UPDATE recipes SET name = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
-      [name, id]
+      [name.trim().toLowerCase(), id]
     );
     if (rows.length === 0) {
       await client.query('ROLLBACK');
@@ -89,9 +89,9 @@ export async function updateRecipe(id: number, name: string, ingredientNames: st
     for (let i = 0; i < ingredientNames.length; i++) {
       const { rows: [ingredient] } = await client.query<Ingredient>(
         `INSERT INTO ingredients (name) VALUES ($1)
-         ON CONFLICT (name) DO UPDATE SET updated_at = NOW()
+         ON CONFLICT ((LOWER(name))) DO UPDATE SET name = EXCLUDED.name, updated_at = NOW()
          RETURNING *`,
-        [ingredientNames[i].trim()]
+        [ingredientNames[i].trim().toLowerCase()]
       );
       await client.query(
         'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order) VALUES ($1, $2, $3)',
