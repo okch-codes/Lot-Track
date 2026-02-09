@@ -2,6 +2,16 @@
 
 Food production lot tracking app. Create recipes with ingredients, generate lots with unique lot numbers, and track ingredient lot numbers across productions.
 
+## Screenshots
+
+| Recipes | Lots |
+|---------|------|
+| ![Recipes](screenshots/recipes.png) | ![Lots](screenshots/lots.png) |
+
+| Ingredients & Lot History | Lot Label |
+|---------------------------|-----------|
+| ![Ingredients](screenshots/ingredients.png) | ![Lot Label](screenshots/lot-label.png) |
+
 ## Stack
 
 - **Frontend:** React, React Router, Vite, Nginx
