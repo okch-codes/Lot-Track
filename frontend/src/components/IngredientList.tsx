@@ -42,6 +42,7 @@ export default function IngredientList({ ingredients, onUpdated }: Props) {
   if (ingredients.length === 0) return <p>No ingredients yet.</p>;
 
   return (
+    <div className="table-wrapper">
     <table className="data-table">
       <thead>
         <tr>
@@ -120,5 +121,6 @@ export default function IngredientList({ ingredients, onUpdated }: Props) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
