@@ -45,6 +45,20 @@ frontend/
     services/api.ts # API client
 ```
 
+## Database Backup & Restore
+
+**Backup:**
+
+```bash
+docker compose exec db pg_dump -U lotti lotti > backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+**Restore:**
+
+```bash
+docker compose exec -T db psql -U lotti lotti < backup_20260210_120000.sql
+```
+
 ## Features
 
 - Recipe management (CRUD) with ingredient lists
