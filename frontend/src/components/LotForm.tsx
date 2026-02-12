@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Recipe, Ingredient } from '../types';
 import { recipesApi, lotsApi } from '../services/api';
@@ -12,6 +12,11 @@ export default function LotForm({ editId }: Props) {
   const isEdit = !!editId;
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<number | ''>('');
+  const [recipeSearch, setRecipeSearch] = useState('');
+  const [showRecipeDropdown, setShowRecipeDropdown] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const [ingredients, setIngredients] = useState<(Ingredient & { lot_value: string })[]>([]);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
@@ -22,9 +27,61 @@ export default function LotForm({ editId }: Props) {
   }, []);
 
   useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowRecipeDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredRecipes = recipes.filter((r) =>
+    r.name.toLowerCase().includes(recipeSearch.toLowerCase())
+  );
+
+  function handleRecipeKeyDown(e: React.KeyboardEvent) {
+    if (!showRecipeDropdown || filteredRecipes.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => {
+        const next = prev < filteredRecipes.length - 1 ? prev + 1 : 0;
+        scrollToItem(next);
+        return next;
+      });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => {
+        const next = prev > 0 ? prev - 1 : filteredRecipes.length - 1;
+        scrollToItem(next);
+        return next;
+      });
+    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+      e.preventDefault();
+      const r = filteredRecipes[highlightedIndex];
+      setRecipeSearch(r.name);
+      setSelectedRecipeId(r.id);
+      setShowRecipeDropdown(false);
+      setHighlightedIndex(-1);
+      handleRecipeChange(r.id);
+    } else if (e.key === 'Escape') {
+      setShowRecipeDropdown(false);
+      setHighlightedIndex(-1);
+    }
+  }
+
+  function scrollToItem(index: number) {
+    const list = listRef.current;
+    if (!list) return;
+    const item = list.children[index] as HTMLElement;
+    if (item) item.scrollIntoView({ block: 'nearest' });
+  }
+
+  useEffect(() => {
     if (!editId) return;
     lotsApi.get(editId).then((lot) => {
       setSelectedRecipeId(lot.recipe_id);
+      setRecipeSearch(lot.recipe_name || '');
       setNotes(lot.notes || '');
       setIngredients(
         (lot.ingredients || []).map((i) => ({
@@ -85,22 +142,54 @@ export default function LotForm({ editId }: Props) {
     <form className="lot-form" onSubmit={handleSubmit}>
       <h3>{isEdit ? 'Edit Lot' : 'Create New Lot'}</h3>
       {error && <p className="error">{error}</p>}
-      <label>
-        Recipe
-        <select
-          value={selectedRecipeId}
-          onChange={(e) => handleRecipeChange(Number(e.target.value))}
-          required
-          disabled={isEdit}
-        >
-          <option value="">Select a recipe...</option>
-          {recipes.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="recipe-search" ref={dropdownRef}>
+        <label>
+          Recipe
+          <input
+            type="text"
+            value={recipeSearch}
+            onChange={(e) => {
+              setRecipeSearch(e.target.value);
+              setShowRecipeDropdown(true);
+              setHighlightedIndex(-1);
+              if (selectedRecipeId) {
+                setSelectedRecipeId('');
+                setIngredients([]);
+              }
+            }}
+            onFocus={() => setShowRecipeDropdown(true)}
+            onKeyDown={handleRecipeKeyDown}
+            placeholder="Search for a recipe..."
+            disabled={isEdit}
+            autoComplete="off"
+          />
+        </label>
+        {showRecipeDropdown && !isEdit && filteredRecipes.length > 0 && (
+          <ul className="recipe-dropdown" ref={listRef}>
+            {filteredRecipes.map((r, i) => (
+              <li
+                key={r.id}
+                className={i === highlightedIndex ? 'highlighted' : ''}
+                onMouseEnter={() => setHighlightedIndex(i)}
+                onClick={() => {
+                  setRecipeSearch(r.name);
+                  setSelectedRecipeId(r.id);
+                  setShowRecipeDropdown(false);
+                  setHighlightedIndex(-1);
+                  handleRecipeChange(r.id);
+                }}
+              >
+                {r.name}
+              </li>
+            ))}
+          </ul>
+        )}
+        {showRecipeDropdown && !isEdit && recipeSearch && filteredRecipes.length === 0 && (
+          <ul className="recipe-dropdown">
+            <li className="no-results">No recipes found</li>
+          </ul>
+        )}
+      </div>
 
       {ingredients.length > 0 && (
         <div className="ingredient-lots">

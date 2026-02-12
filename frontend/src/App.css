@@ -285,6 +285,51 @@ button:disabled {
   margin-bottom: 0.75rem;
 }
 
+/* Recipe search dropdown */
+.recipe-search {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.recipe-dropdown {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+}
+
+.recipe-dropdown li {
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.1s;
+}
+
+.recipe-dropdown li.highlighted {
+  background: #3498db;
+  color: white;
+}
+
+.recipe-dropdown li:not(.highlighted):hover {
+  background: #f0f4f8;
+}
+
+.recipe-dropdown li.no-results {
+  color: #999;
+  font-style: italic;
+  cursor: default;
+  padding: 0.75rem;
+}
+
 /* Pagination */
 .pagination {
   display: flex;
