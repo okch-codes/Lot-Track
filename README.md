@@ -50,13 +50,14 @@ frontend/
 **Backup:**
 
 ```bash
-docker compose exec db pg_dump -U lotti lotti > backup_$(date +%Y%m%d_%H%M%S).sql
+It's done automatically from lottracker-db-backup container
 ```
 
 **Restore:**
 
 ```bash
-docker compose exec -T db psql -U lotti lotti < backup_20260210_120000.sql
+docker exec -i <container_name> psql -U <db_user> -d <db_name> -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+cat <file>.dmp | docker exec -i <container_name> pg_restore -U <db_user> -d <db_name> --no-owner --verbose
 ```
 
 ## Features
