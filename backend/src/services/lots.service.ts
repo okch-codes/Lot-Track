@@ -83,16 +83,6 @@ export async function createLot(body: CreateLotBody): Promise<Lot> {
   try {
     await client.query('BEGIN');
 
-    const today = new Date().toISOString().slice(0, 10);
-    const { rows: existing } = await client.query(
-      `SELECT id FROM lots
-       WHERE recipe_id = $1 AND created_at::date = $2::date`,
-      [body.recipe_id, today]
-    );
-    if (existing.length > 0) {
-      throw new AppError(409, 'A lot for this recipe already exists today');
-    }
-
     const lotNumber = await getNextLotNumberWithClient(client);
     const { rows: [lot] } = await client.query<Lot>(
       'INSERT INTO lots (lot_number, recipe_id, notes) VALUES ($1, $2, $3) RETURNING *',
