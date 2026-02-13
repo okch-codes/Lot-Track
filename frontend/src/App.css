@@ -354,8 +354,12 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
-/* Lot Label */
-.lot-label {
+/* Lot Label — screen version */
+.lot-label-print {
+  display: none;
+}
+
+.lot-label-screen {
   background: white;
   padding: 2rem;
   border-radius: 6px;
@@ -525,7 +529,7 @@ button:disabled {
     width: 100%;
   }
 
-  .lot-label {
+  .lot-label-screen {
     padding: 1rem;
   }
 
@@ -534,15 +538,31 @@ button:disabled {
   }
 }
 
-/* Print styles */
+/* Print styles — 4 × 6 cm label */
 @media print {
+  @page {
+    size: 6cm 4cm;
+    margin: 0;
+  }
+
   .navbar,
   .no-print {
     display: none !important;
   }
 
+  .lot-label-screen {
+    display: none !important;
+  }
+
+  .lot-label-print {
+    display: block !important;
+  }
+
   body {
     background: white;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .main-content {
@@ -551,8 +571,38 @@ button:disabled {
     max-width: none;
   }
 
-  .lot-label {
+  .lot-label-print {
     box-shadow: none;
-    padding: 0;
+    border-radius: 0;
+    padding: 2mm 2.5mm;
+    width: 6cm;
+    height: 4cm;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lot-label-print .print-title {
+    font-weight: 700;
+    font-size: 8pt;
+    text-align: center;
+    margin-bottom: 1.5mm;
+    padding-bottom: 1mm;
+    border-bottom: 0.5pt solid #333;
+  }
+
+  .lot-label-print p {
+    font-size: 7pt;
+    line-height: 1.35;
+    text-align: center;
+    margin: 0;
+  }
+
+  .lot-label-print .print-notes {
+    font-size: 6pt;
+    font-style: italic;
+    text-align: center;
+    margin-top: 1.5mm;
+    color: #444;
   }
 }
