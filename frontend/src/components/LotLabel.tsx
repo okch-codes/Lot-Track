@@ -42,7 +42,10 @@ export default function LotLabel({ lot }: Props) {
       {/* Print version */}
       <div className="lot-label lot-label-print">
         <div>
-          <div className="print-title">{lot.recipe_name} — {lot.lot_number}</div>
+          <div className="print-title">
+            <span className="print-recipe">{lot.recipe_name}</span>
+            <span className="print-lot">Lotto {lot.lot_number}</span>
+          </div>
           <p>{[...(lot.ingredients || [])].sort((a, b) => (a.ingredient_name || '').localeCompare(b.ingredient_name || '')).map((ing) => ing.ingredient_name).join(', ')}</p>
           {lot.notes && <div className="print-notes">{lot.notes}</div>}
         </div>

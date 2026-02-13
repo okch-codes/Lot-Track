@@ -583,12 +583,23 @@ button:disabled {
   }
 
   .lot-label-print .print-title {
-    font-weight: 700;
-    font-size: 8pt;
     text-align: center;
     margin-bottom: 1.5mm;
     padding-bottom: 1mm;
     border-bottom: 0.5pt solid #333;
+  }
+
+  .lot-label-print .print-recipe {
+    display: block;
+    font-weight: 700;
+    font-size: 8pt;
+  }
+
+  .lot-label-print .print-lot {
+    display: block;
+    font-size: 6.5pt;
+    color: #555;
+    margin-top: 0.5mm;
   }
 
   .lot-label-print p {
