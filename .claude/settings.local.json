@@ -4,7 +4,9 @@
       "WebSearch",
       "Bash(npm install:*)",
       "Bash(docker compose:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ]
   }
 }

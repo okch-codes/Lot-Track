@@ -88,6 +88,7 @@ export default function LotForm({ editId }: Props) {
           id: i.ingredient_id,
           name: i.ingredient_name || '',
           last_lot_number: i.lot_number,
+          is_highlighted: i.is_highlighted ?? false,
           lot_value: i.lot_number || '',
           created_at: '',
           updated_at: '',
@@ -116,9 +117,11 @@ export default function LotForm({ editId }: Props) {
     if (!selectedRecipeId || ingredients.length === 0) return;
     setError('');
     try {
-      const ingredientData = ingredients.map((i) => ({
+      const ingredientData = ingredients.map((i, idx) => ({
         ingredient_id: i.id,
         lot_number: i.lot_value,
+        sort_order: idx,
+        is_highlighted: (i as any).is_highlighted ?? false,
       }));
       if (isEdit) {
         await lotsApi.update(editId!, { ingredients: ingredientData, notes: notes || undefined });

@@ -51,7 +51,8 @@ export async function getLotById(id: number): Promise<Lot | null> {
     `SELECT li.*, i.name as ingredient_name
      FROM lot_ingredients li
      JOIN ingredients i ON i.id = li.ingredient_id
-     WHERE li.lot_id = $1`,
+     WHERE li.lot_id = $1
+     ORDER BY li.sort_order`,
     [lot.id]
   );
   lot.ingredients = ingredients;
@@ -88,10 +89,11 @@ export async function createLot(body: CreateLotBody): Promise<Lot> {
       'INSERT INTO lots (lot_number, recipe_id, notes) VALUES ($1, $2, $3) RETURNING *',
       [lotNumber, body.recipe_id, body.notes || null]
     );
-    for (const ing of body.ingredients) {
+    for (let i = 0; i < body.ingredients.length; i++) {
+      const ing = body.ingredients[i];
       await client.query(
-        'INSERT INTO lot_ingredients (lot_id, ingredient_id, lot_number) VALUES ($1, $2, $3)',
-        [lot.id, ing.ingredient_id, ing.lot_number]
+        'INSERT INTO lot_ingredients (lot_id, ingredient_id, lot_number, sort_order, is_highlighted) VALUES ($1, $2, $3, $4, $5)',
+        [lot.id, ing.ingredient_id, ing.lot_number, ing.sort_order ?? i, ing.is_highlighted ?? false]
       );
       await client.query(
         'UPDATE ingredients SET last_lot_number = $1, updated_at = NOW() WHERE id = $2',
@@ -130,7 +132,7 @@ async function getNextLotNumberWithClient(client: any): Promise<string> {
 
 export async function updateLot(
   id: number,
-  body: { ingredients: { ingredient_id: number; lot_number: string }[]; notes?: string }
+  body: { ingredients: { ingredient_id: number; lot_number: string; sort_order?: number; is_highlighted?: boolean }[]; notes?: string }
 ): Promise<Lot | null> {
   const client = await pool.connect();
   try {
@@ -142,10 +144,11 @@ export async function updateLot(
     }
     await client.query('UPDATE lots SET notes = $1 WHERE id = $2', [body.notes ?? null, id]);
     await client.query('DELETE FROM lot_ingredients WHERE lot_id = $1', [id]);
-    for (const ing of body.ingredients) {
+    for (let i = 0; i < body.ingredients.length; i++) {
+      const ing = body.ingredients[i];
       await client.query(
-        'INSERT INTO lot_ingredients (lot_id, ingredient_id, lot_number) VALUES ($1, $2, $3)',
-        [id, ing.ingredient_id, ing.lot_number]
+        'INSERT INTO lot_ingredients (lot_id, ingredient_id, lot_number, sort_order, is_highlighted) VALUES ($1, $2, $3, $4, $5)',
+        [id, ing.ingredient_id, ing.lot_number, ing.sort_order ?? i, ing.is_highlighted ?? false]
       );
       await client.query(
         'UPDATE ingredients SET last_lot_number = $1, updated_at = NOW() WHERE id = $2',

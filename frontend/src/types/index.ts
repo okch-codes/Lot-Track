@@ -2,6 +2,7 @@ export interface Ingredient {
   id: number;
   name: string;
   last_lot_number: string | null;
+  is_highlighted?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +31,8 @@ export interface LotIngredient {
   ingredient_id: number;
   lot_number: string | null;
   ingredient_name?: string;
+  sort_order?: number;
+  is_highlighted?: boolean;
 }
 
 export interface LotHistoryEntry {

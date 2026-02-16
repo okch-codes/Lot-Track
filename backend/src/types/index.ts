@@ -2,6 +2,7 @@ export interface Ingredient {
   id: number;
   name: string;
   last_lot_number: string | null;
+  is_highlighted?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +38,8 @@ export interface LotIngredient {
   ingredient_id: number;
   lot_number: string | null;
   ingredient_name?: string;
+  sort_order?: number;
+  is_highlighted?: boolean;
 }
 
 export interface CreateRecipeBody {
@@ -46,6 +49,6 @@ export interface CreateRecipeBody {
 
 export interface CreateLotBody {
   recipe_id: number;
-  ingredients: { ingredient_id: number; lot_number: string }[];
+  ingredients: { ingredient_id: number; lot_number: string; sort_order?: number; is_highlighted?: boolean }[];
   notes?: string;
 }

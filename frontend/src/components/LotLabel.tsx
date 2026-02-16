@@ -25,7 +25,7 @@ export default function LotLabel({ lot }: Props) {
           <tbody>
             {lot.ingredients?.map((ing) => (
               <tr key={ing.id}>
-                <td>{ing.ingredient_name}</td>
+                <td>{ing.is_highlighted ? <u>{ing.ingredient_name}</u> : ing.ingredient_name}</td>
                 <td>{ing.lot_number || '—'}</td>
               </tr>
             ))}
@@ -37,6 +37,9 @@ export default function LotLabel({ lot }: Props) {
             <strong>Notes:</strong> {lot.notes}
           </div>
         )}
+        {lot.ingredients?.some((ing) => ing.is_highlighted) && (
+          <p className="allergen-note"><u>Sottolineato</u> = contiene allergeni</p>
+        )}
       </div>
 
       {/* Print version */}
@@ -46,7 +49,9 @@ export default function LotLabel({ lot }: Props) {
             <span className="print-recipe">{lot.recipe_name}</span>
             <span className="print-lot">Lotto {lot.lot_number}</span>
           </div>
-          <p>{[...(lot.ingredients || [])].sort((a, b) => (a.ingredient_name || '').localeCompare(b.ingredient_name || '')).map((ing) => ing.ingredient_name).join(', ')}</p>
+          <p>{(lot.ingredients || []).map((ing, idx) => (
+            <span key={ing.id}>{idx > 0 ? ', ' : ''}{ing.is_highlighted ? <u>{ing.ingredient_name}</u> : ing.ingredient_name}</span>
+          ))}</p>
           {lot.notes && <div className="print-notes">{lot.notes}</div>}
         </div>
       </div>

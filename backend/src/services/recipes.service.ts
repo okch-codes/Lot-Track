@@ -23,7 +23,7 @@ export async function getAllRecipes(
   if (rows.length > 0) {
     const ids = rows.map(r => r.id);
     const { rows: riRows } = await pool.query<Ingredient & { recipe_id: number }>(
-      `SELECT i.*, ri.recipe_id FROM ingredients i
+      `SELECT i.*, ri.recipe_id, ri.is_highlighted FROM ingredients i
        JOIN recipe_ingredients ri ON ri.ingredient_id = i.id
        WHERE ri.recipe_id = ANY($1)
        ORDER BY ri.sort_order`,
@@ -48,7 +48,7 @@ export async function getRecipeById(id: number): Promise<Recipe | null> {
   if (rows.length === 0) return null;
   const recipe = rows[0];
   const { rows: ingredients } = await pool.query<Ingredient>(
-    `SELECT i.* FROM ingredients i
+    `SELECT i.*, ri.is_highlighted FROM ingredients i
      JOIN recipe_ingredients ri ON ri.ingredient_id = i.id
      WHERE ri.recipe_id = $1
      ORDER BY ri.sort_order`,
@@ -68,16 +68,20 @@ export async function createRecipe(name: string, ingredientNames: string[]): Pro
     );
     const ingredients: Ingredient[] = [];
     for (let i = 0; i < ingredientNames.length; i++) {
+      const raw = ingredientNames[i].trim();
+      const highlighted = raw.endsWith('*');
+      const cleanName = highlighted ? raw.slice(0, -1).trim().toLowerCase() : raw.toLowerCase();
       const { rows: [ingredient] } = await client.query<Ingredient>(
         `INSERT INTO ingredients (name) VALUES ($1)
          ON CONFLICT ((LOWER(name))) DO UPDATE SET name = EXCLUDED.name, updated_at = NOW()
          RETURNING *`,
-        [ingredientNames[i].trim().toLowerCase()]
+        [cleanName]
       );
       await client.query(
-        'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order) VALUES ($1, $2, $3)',
-        [recipe.id, ingredient.id, i]
+        'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order, is_highlighted) VALUES ($1, $2, $3, $4)',
+        [recipe.id, ingredient.id, i, highlighted]
       );
+      ingredient.is_highlighted = highlighted;
       ingredients.push(ingredient);
     }
     await client.query('COMMIT');
@@ -107,16 +111,20 @@ export async function updateRecipe(id: number, name: string, ingredientNames: st
     await client.query('DELETE FROM recipe_ingredients WHERE recipe_id = $1', [id]);
     const ingredients: Ingredient[] = [];
     for (let i = 0; i < ingredientNames.length; i++) {
+      const raw = ingredientNames[i].trim();
+      const highlighted = raw.endsWith('*');
+      const cleanName = highlighted ? raw.slice(0, -1).trim().toLowerCase() : raw.toLowerCase();
       const { rows: [ingredient] } = await client.query<Ingredient>(
         `INSERT INTO ingredients (name) VALUES ($1)
          ON CONFLICT ((LOWER(name))) DO UPDATE SET name = EXCLUDED.name, updated_at = NOW()
          RETURNING *`,
-        [ingredientNames[i].trim().toLowerCase()]
+        [cleanName]
       );
       await client.query(
-        'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order) VALUES ($1, $2, $3)',
-        [recipe.id, ingredient.id, i]
+        'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order, is_highlighted) VALUES ($1, $2, $3, $4)',
+        [recipe.id, ingredient.id, i, highlighted]
       );
+      ingredient.is_highlighted = highlighted;
       ingredients.push(ingredient);
     }
     await client.query('COMMIT');
@@ -137,7 +145,7 @@ export async function deleteRecipe(id: number): Promise<boolean> {
 
 export async function getRecipeIngredientsWithLots(recipeId: number): Promise<Ingredient[]> {
   const { rows } = await pool.query<Ingredient>(
-    `SELECT i.* FROM ingredients i
+    `SELECT i.*, ri.is_highlighted FROM ingredients i
      JOIN recipe_ingredients ri ON ri.ingredient_id = i.id
      WHERE ri.recipe_id = $1
      ORDER BY ri.sort_order`,

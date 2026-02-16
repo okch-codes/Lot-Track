@@ -140,6 +140,14 @@ button:disabled {
   font-size: 0.9rem;
 }
 
+.allergen-note {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #888;
+  list-style: none;
+  margin-top: 0.3rem;
+}
+
 /* Tables */
 .data-table {
   width: 100%;
@@ -615,5 +623,13 @@ button:disabled {
     text-align: center;
     margin-top: 1.5mm;
     color: #444;
+  }
+
+  .lot-label-print .allergen-note {
+    font-size: 5.5pt;
+    font-style: italic;
+    text-align: center;
+    margin-top: 1mm;
+    color: #555;
   }
 }

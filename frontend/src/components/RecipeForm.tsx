@@ -15,7 +15,7 @@ export default function RecipeForm({ editingRecipe, onSave, onCancel }: Props) {
     if (editingRecipe) {
       setName(editingRecipe.name);
       setIngredientsText(
-        editingRecipe.ingredients?.map((i) => i.name).join('\n') || ''
+        editingRecipe.ingredients?.map((i) => i.is_highlighted ? `${i.name}*` : i.name).join('\n') || ''
       );
     } else {
       setName('');
@@ -41,7 +41,7 @@ export default function RecipeForm({ editingRecipe, onSave, onCancel }: Props) {
         <input value={name} onChange={(e) => setName(e.target.value)} required />
       </label>
       <label>
-        Ingredients (one per line)
+        Ingredients (one per line, add * for allergens e.g. latte*)
         <textarea
           rows={6}
           value={ingredientsText}

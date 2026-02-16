@@ -25,8 +25,11 @@ export default function RecipeList({ recipes, onEdit, onDelete }: Props) {
           {recipe.ingredients && (
             <ul className="ingredient-list">
               {recipe.ingredients.map((ing) => (
-                <li key={ing.id}>{ing.name}</li>
+                <li key={ing.id}>{ing.is_highlighted ? <u>{ing.name}</u> : ing.name}</li>
               ))}
+              {recipe.ingredients.some((ing) => ing.is_highlighted) && (
+                <li className="allergen-note">* = contiene allergeni</li>
+              )}
             </ul>
           )}
         </div>
