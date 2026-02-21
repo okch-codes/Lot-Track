@@ -64,7 +64,7 @@ export async function createRecipe(name: string, ingredientNames: string[]): Pro
     await client.query('BEGIN');
     const { rows: [recipe] } = await client.query<Recipe>(
       'INSERT INTO recipes (name) VALUES ($1) RETURNING *',
-      [name.trim().toLowerCase()]
+      [name.trim().replace(/\s+/g, ' ').toLowerCase()]
     );
     const ingredients: Ingredient[] = [];
     for (let i = 0; i < ingredientNames.length; i++) {
@@ -101,7 +101,7 @@ export async function updateRecipe(id: number, name: string, ingredientNames: st
     await client.query('BEGIN');
     const { rows } = await client.query<Recipe>(
       'UPDATE recipes SET name = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
-      [name.trim().toLowerCase(), id]
+      [name.trim().replace(/\s+/g, ' ').toLowerCase(), id]
     );
     if (rows.length === 0) {
       await client.query('ROLLBACK');

@@ -38,12 +38,15 @@ export default function RecipesPage() {
     try {
       if (editingRecipe) {
         await recipesApi.update(editingRecipe.id, { name, ingredients });
+        await load(search || undefined, page);
       } else {
         await recipesApi.create({ name, ingredients });
+        setPage(1);
+        setSearch('');
+        await load(undefined, 1);
       }
       setShowForm(false);
       setEditingRecipe(null);
-      await load(search || undefined, page);
     } catch (err: any) {
       setError(err.message);
     }
