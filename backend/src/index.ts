@@ -11,6 +11,7 @@ import logger from './utils/logger';
 const app = express();
 const PORT = 3001;
 
+app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json());
 app.use(rateLimit({ windowMs: 60_000, max: 100 }));
