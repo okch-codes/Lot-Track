@@ -5,10 +5,15 @@ import RecipesPage from './pages/RecipesPage';
 import IngredientsPage from './pages/IngredientsPage';
 import LotsPage from './pages/LotsPage';
 import LotDetailPage from './pages/LotDetailPage';
+import UpdateBanner from './components/UpdateBanner';
+import { useVersionCheck } from './hooks/useVersionCheck';
 
 export default function App() {
+  const updateAvailable = useVersionCheck();
   return (
-    <Layout>
+    <>
+      <UpdateBanner updateAvailable={updateAvailable} />
+      <Layout>
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Navigate to="/recipes" replace />} />
@@ -21,5 +26,6 @@ export default function App() {
         </Routes>
       </ErrorBoundary>
     </Layout>
+    </>
   );
 }

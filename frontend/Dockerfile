@@ -4,6 +4,7 @@ COPY package.json package-lock.json* ./
 RUN npm install
 COPY . .
 RUN npm run build
+RUN echo "{\"buildTime\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > /app/dist/version.json
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
