@@ -41,6 +41,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     res.status(201).json(recipe);
   } catch (err: any) {
     if (err.code === '23505') {
+      const detail: string = err.detail || '';
+      if (detail.includes('recipe_id') && detail.includes('ingredient_id')) {
+        return res.status(409).json({ error: 'Duplicate ingredient in recipe' });
+      }
       return res.status(409).json({ error: 'A recipe with this name already exists' });
     }
     next(err);

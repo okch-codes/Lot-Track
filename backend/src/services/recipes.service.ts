@@ -67,6 +67,7 @@ export async function createRecipe(name: string, ingredientNames: string[]): Pro
       [name.trim().replace(/\s+/g, ' ').toLowerCase()]
     );
     const ingredients: Ingredient[] = [];
+    const seenIngredientIds = new Set<number>();
     for (let i = 0; i < ingredientNames.length; i++) {
       const raw = ingredientNames[i].trim();
       const highlighted = raw.endsWith('*');
@@ -77,6 +78,8 @@ export async function createRecipe(name: string, ingredientNames: string[]): Pro
          RETURNING *`,
         [cleanName]
       );
+      if (seenIngredientIds.has(ingredient.id)) continue;
+      seenIngredientIds.add(ingredient.id);
       await client.query(
         'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order, is_highlighted) VALUES ($1, $2, $3, $4)',
         [recipe.id, ingredient.id, i, highlighted]
@@ -110,6 +113,7 @@ export async function updateRecipe(id: number, name: string, ingredientNames: st
     const recipe = rows[0];
     await client.query('DELETE FROM recipe_ingredients WHERE recipe_id = $1', [id]);
     const ingredients: Ingredient[] = [];
+    const seenIngredientIds = new Set<number>();
     for (let i = 0; i < ingredientNames.length; i++) {
       const raw = ingredientNames[i].trim();
       const highlighted = raw.endsWith('*');
@@ -120,6 +124,8 @@ export async function updateRecipe(id: number, name: string, ingredientNames: st
          RETURNING *`,
         [cleanName]
       );
+      if (seenIngredientIds.has(ingredient.id)) continue;
+      seenIngredientIds.add(ingredient.id);
       await client.query(
         'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, sort_order, is_highlighted) VALUES ($1, $2, $3, $4)',
         [recipe.id, ingredient.id, i, highlighted]
