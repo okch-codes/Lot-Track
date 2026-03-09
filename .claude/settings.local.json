@@ -6,7 +6,10 @@
       "Bash(docker compose:*)",
       "Bash(echo:*)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(aws s3:*)",
+      "Bash(gunzip:*)",
+      "Bash(docker exec:*)"
     ]
   }
 }
