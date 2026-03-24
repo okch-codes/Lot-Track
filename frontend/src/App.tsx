@@ -5,6 +5,8 @@ import RecipesPage from './pages/RecipesPage';
 import IngredientsPage from './pages/IngredientsPage';
 import LotsPage from './pages/LotsPage';
 import LotDetailPage from './pages/LotDetailPage';
+import PlanningPage from './pages/PlanningPage';
+import PlanningGridPage from './pages/PlanningGridPage';
 import UpdateBanner from './components/UpdateBanner';
 import { useVersionCheck } from './hooks/useVersionCheck';
 
@@ -23,6 +25,8 @@ export default function App() {
           <Route path="/lots/new" element={<LotsPage />} />
           <Route path="/lots/:id/edit" element={<LotsPage />} />
           <Route path="/lots/:id" element={<LotDetailPage />} />
+          <Route path="/planning" element={<PlanningPage />} />
+          <Route path="/planning/:eventId" element={<PlanningGridPage />} />
         </Routes>
       </ErrorBoundary>
     </Layout>

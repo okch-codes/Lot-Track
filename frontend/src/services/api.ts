@@ -1,4 +1,4 @@
-import { Recipe, Ingredient, Lot, LotHistoryEntry } from '../types';
+import { Recipe, Ingredient, Lot, LotHistoryEntry, PlanningEvent, Order, PlanningColumn, PlanningGridData } from '../types';
 
 const BASE = '/api';
 
@@ -79,4 +79,29 @@ export const lotsApi = {
   }) => request<Lot>(`/lots/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) =>
     request<void>(`/lots/${id}`, { method: 'DELETE' }),
+};
+
+export const planningApi = {
+  listEvents: () =>
+    request<PlanningEvent[]>('/planning'),
+  createEvent: (name: string) =>
+    request<PlanningEvent>('/planning', { method: 'POST', body: JSON.stringify({ name }) }),
+  getEventGrid: (eventId: number) =>
+    request<PlanningGridData>(`/planning/${eventId}`),
+  updateEvent: (eventId: number, name: string) =>
+    request<PlanningEvent>(`/planning/${eventId}`, { method: 'PUT', body: JSON.stringify({ name }) }),
+  deleteEvent: (eventId: number) =>
+    request<void>(`/planning/${eventId}`, { method: 'DELETE' }),
+  createOrder: (eventId: number, clientName: string) =>
+    request<Order>(`/planning/${eventId}/orders`, { method: 'POST', body: JSON.stringify({ client_name: clientName }) }),
+  patchOrder: (eventId: number, orderId: number, data: Record<string, unknown>) =>
+    request<Order>(`/planning/${eventId}/orders/${orderId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteOrder: (eventId: number, orderId: number) =>
+    request<void>(`/planning/${eventId}/orders/${orderId}`, { method: 'DELETE' }),
+  upsertItem: (eventId: number, orderId: number, data: { recipe_id: number; size: string; quantity: number }) =>
+    request<void>(`/planning/${eventId}/orders/${orderId}/items`, { method: 'PUT', body: JSON.stringify(data) }),
+  createColumn: (eventId: number, recipeId: number, size: string) =>
+    request<PlanningColumn>(`/planning/${eventId}/columns`, { method: 'POST', body: JSON.stringify({ recipe_id: recipeId, size }) }),
+  deleteColumn: (eventId: number, recipeId: number, size: string) =>
+    request<void>(`/planning/${eventId}/columns`, { method: 'DELETE', body: JSON.stringify({ recipe_id: recipeId, size }) }),
 };

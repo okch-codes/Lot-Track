@@ -41,3 +41,49 @@ export interface LotHistoryEntry {
   created_at: string;
   recipe_name: string;
 }
+
+export interface PlanningEvent {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Order {
+  id: number;
+  planning_event_id: number;
+  client_name: string;
+  extra: string | null;
+  delivery_date: string | null;
+  delivery_address: string | null;
+  price_cents: number | null;
+  is_ready: boolean;
+  is_delivered: boolean;
+  is_paid: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  items?: OrderItem[];
+}
+
+export interface OrderItem {
+  id: number;
+  order_id: number;
+  recipe_id: number;
+  recipe_name?: string;
+  size: string;
+  quantity: number;
+}
+
+export interface PlanningColumn {
+  recipe_id: number;
+  recipe_name: string;
+  size: string;
+}
+
+export interface PlanningGridData {
+  event: PlanningEvent;
+  orders: Order[];
+  totals: Record<string, number>;
+  columns: PlanningColumn[];
+}

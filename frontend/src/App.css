@@ -64,6 +64,11 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.page-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .page-header h2 {
   font-size: 1.5rem;
 }
@@ -632,4 +637,203 @@ button:disabled {
     margin-top: 1mm;
     color: #555;
   }
+}
+
+/* ── Planning Grid ── */
+
+.planning-grid-page {
+  width: calc(100vw - 3rem);
+  max-width: calc(100vw - 3rem);
+  margin-left: calc(-50vw + 50%);
+  padding: 0 1.5rem;
+}
+
+.planning-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.planning-add-order,
+.planning-add-col,
+.planning-create-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.planning-add-order input,
+.planning-add-col input,
+.planning-add-col select,
+.planning-create-form input {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.planning-filters {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: #f5f5f5;
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-chip:hover {
+  background: #eee;
+}
+
+.filter-chip-active {
+  background: #e8f0fe;
+  border-color: #4a90d9;
+}
+
+.filter-chip input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.filter-count {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: 0.25rem;
+}
+
+.planning-grid-wrapper {
+  overflow-x: auto;
+  margin-top: 0.5rem;
+}
+
+.planning-grid {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 100%;
+}
+
+.planning-grid th,
+.planning-grid td {
+  border: 1px solid #ddd;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+.planning-grid th {
+  background: #f5f5f5;
+  font-weight: 600;
+  text-align: center;
+}
+
+.planning-grid .recipe-header {
+  background: #e8e8e8;
+  border-bottom: none;
+}
+
+.planning-grid .size-header {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.planning-grid .sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #fff;
+  min-width: 140px;
+}
+
+.planning-grid thead .sticky-col {
+  background: #f5f5f5;
+  z-index: 3;
+}
+
+.planning-grid .totals-row {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.planning-grid .totals-row .sticky-col {
+  background: #fafafa;
+}
+
+.planning-grid .qty-cell,
+.planning-grid .cell-qty {
+  text-align: center;
+  min-width: 40px;
+}
+
+.planning-grid .checkbox-cell {
+  text-align: center;
+}
+
+.planning-grid .cell-display {
+  display: block;
+  min-height: 1.4em;
+  cursor: pointer;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.planning-grid .cell-display:hover {
+  background: #e8f0fe;
+}
+
+.planning-grid .cell-input {
+  border: 1px solid #4a90d9;
+  border-radius: 2px;
+  padding: 1px 3px;
+  font-size: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.planning-grid .cell-input-qty {
+  width: 50px;
+  text-align: center;
+}
+
+.planning-grid .btn-sm {
+  padding: 2px 6px;
+  font-size: 0.8rem;
+}
+
+.planning-grid th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.planning-grid th.sortable:hover {
+  background: #e0e0e0;
+}
+
+.planning-grid .col-delete-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0 2px;
+  margin-left: 2px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.planning-grid .col-delete-btn:hover {
+  color: #d32f2f;
 }

@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/errorHandler';
 import recipesRouter from './routes/recipes';
 import ingredientsRouter from './routes/ingredients';
 import lotsRouter from './routes/lots';
+import planningRouter from './routes/planning';
 import logger from './utils/logger';
 
 const app = express();
@@ -28,6 +29,7 @@ app.get('/api/health', async (_req, res) => {
 app.use('/api/recipes', recipesRouter);
 app.use('/api/ingredients', ingredientsRouter);
 app.use('/api/lots', lotsRouter);
+app.use('/api/planning', planningRouter);
 
 app.use(errorHandler);
 
