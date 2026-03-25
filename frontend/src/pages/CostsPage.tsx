@@ -616,14 +616,13 @@ function ScanInvoiceTab() {
           ref={fileRef}
           type="file"
           accept="image/*,.pdf"
-          capture="environment"
           onChange={handleInputChange}
           style={{ display: 'none' }}
         />
         {fileName ? (
           <p>{fileName}</p>
         ) : (
-          <p>Tap to take a photo or drop an invoice image here</p>
+          <p>Tap to upload an invoice</p>
         )}
       </div>
 
