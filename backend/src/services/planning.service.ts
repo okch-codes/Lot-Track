@@ -169,30 +169,46 @@ export async function upsertOrderItem(
 }
 
 export async function createColumn(eventId: number, recipeId: number, size: string): Promise<PlanningColumn> {
-  const { rows: [{ max }] } = await pool.query<{ max: number | null }>(
-    'SELECT MAX(sort_order) AS max FROM planning_columns WHERE planning_event_id = $1',
-    [eventId]
+  const trimmedSize = size.trim();
+
+  // Check if this exact column already exists
+  const { rows: [existing] } = await pool.query<PlanningColumn>(
+    `SELECT pc.recipe_id, r.name AS recipe_name, pc.size
+     FROM planning_columns pc JOIN recipes r ON r.id = pc.recipe_id
+     WHERE pc.planning_event_id = $1 AND pc.recipe_id = $2 AND pc.size = $3`,
+    [eventId, recipeId, trimmedSize]
   );
-  const sortOrder = (max ?? -1) + 1;
+  if (existing) return existing;
+
+  // Check if this recipe already has columns in this event
+  const { rows: [recipeMax] } = await pool.query<{ max: number | null }>(
+    'SELECT MAX(sort_order) AS max FROM planning_columns WHERE planning_event_id = $1 AND recipe_id = $2',
+    [eventId, recipeId]
+  );
+
+  let sortOrder: number;
+  if (recipeMax.max != null) {
+    // Insert right after the last column of this recipe; shift subsequent columns
+    sortOrder = recipeMax.max + 1;
+    await pool.query(
+      'UPDATE planning_columns SET sort_order = sort_order + 1 WHERE planning_event_id = $1 AND sort_order >= $2 AND recipe_id != $3',
+      [eventId, sortOrder, recipeId]
+    );
+  } else {
+    // New recipe — append to end
+    const { rows: [{ max }] } = await pool.query<{ max: number | null }>(
+      'SELECT MAX(sort_order) AS max FROM planning_columns WHERE planning_event_id = $1',
+      [eventId]
+    );
+    sortOrder = (max ?? -1) + 1;
+  }
 
   const { rows: [col] } = await pool.query<PlanningColumn & { id: number }>(
     `INSERT INTO planning_columns (planning_event_id, recipe_id, size, sort_order)
      VALUES ($1, $2, $3, $4)
-     ON CONFLICT (planning_event_id, recipe_id, size) DO NOTHING
      RETURNING *`,
-    [eventId, recipeId, size.trim(), sortOrder]
+    [eventId, recipeId, trimmedSize, sortOrder]
   );
-
-  // If already existed, just fetch it
-  if (!col) {
-    const { rows: [existing] } = await pool.query<PlanningColumn>(
-      `SELECT pc.recipe_id, r.name AS recipe_name, pc.size
-       FROM planning_columns pc JOIN recipes r ON r.id = pc.recipe_id
-       WHERE pc.planning_event_id = $1 AND pc.recipe_id = $2 AND pc.size = $3`,
-      [eventId, recipeId, size.trim()]
-    );
-    return existing;
-  }
 
   // Fetch with recipe_name
   const { rows: [result] } = await pool.query<PlanningColumn>(
@@ -202,6 +218,77 @@ export async function createColumn(eventId: number, recipeId: number, size: stri
     [col.id]
   );
   return result;
+}
+
+export async function moveRecipeGroup(eventId: number, recipeId: number, direction: 'left' | 'right'): Promise<void> {
+  // Fetch all columns for this event ordered by sort_order
+  const { rows: allCols } = await pool.query<{ id: number; recipe_id: number; sort_order: number }>(
+    'SELECT id, recipe_id, sort_order FROM planning_columns WHERE planning_event_id = $1 ORDER BY sort_order',
+    [eventId]
+  );
+
+  // Build consecutive recipe groups
+  const groups: { recipe_id: number; ids: number[]; sort_orders: number[] }[] = [];
+  for (const col of allCols) {
+    const last = groups[groups.length - 1];
+    if (last && last.recipe_id === col.recipe_id) {
+      last.ids.push(col.id);
+      last.sort_orders.push(col.sort_order);
+    } else {
+      groups.push({ recipe_id: col.recipe_id, ids: [col.id], sort_orders: [col.sort_order] });
+    }
+  }
+
+  const idx = groups.findIndex(g => g.recipe_id === recipeId);
+  if (idx < 0) return;
+
+  const swapIdx = direction === 'left' ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= groups.length) return;
+
+  const groupA = groups[idx];
+  const groupB = groups[swapIdx];
+  const startPos = Math.min(groupA.sort_orders[0], groupB.sort_orders[0]);
+
+  // After swap: the group that was further away goes first
+  const first = direction === 'left' ? groupA : groupB;
+  const second = direction === 'left' ? groupB : groupA;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    for (let i = 0; i < first.ids.length; i++) {
+      await client.query('UPDATE planning_columns SET sort_order = $1 WHERE id = $2', [startPos + i, first.ids[i]]);
+    }
+    for (let i = 0; i < second.ids.length; i++) {
+      await client.query('UPDATE planning_columns SET sort_order = $1 WHERE id = $2', [startPos + first.ids.length + i, second.ids[i]]);
+    }
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+export async function moveColumn(eventId: number, recipeId: number, size: string, direction: 'left' | 'right'): Promise<void> {
+  // Fetch all columns for this recipe group ordered by sort_order
+  const { rows: cols } = await pool.query<{ id: number; sort_order: number; size: string }>(
+    'SELECT id, sort_order, size FROM planning_columns WHERE planning_event_id = $1 AND recipe_id = $2 ORDER BY sort_order',
+    [eventId, recipeId]
+  );
+
+  const idx = cols.findIndex(c => c.size === size);
+  if (idx < 0) return;
+
+  const swapIdx = direction === 'left' ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= cols.length) return;
+
+  // Swap sort_orders
+  const a = cols[idx];
+  const b = cols[swapIdx];
+  await pool.query('UPDATE planning_columns SET sort_order = $1 WHERE id = $2', [b.sort_order, a.id]);
+  await pool.query('UPDATE planning_columns SET sort_order = $1 WHERE id = $2', [a.sort_order, b.id]);
 }
 
 export async function deleteColumn(eventId: number, recipeId: number, size: string): Promise<void> {

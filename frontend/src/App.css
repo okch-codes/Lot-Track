@@ -837,3 +837,17 @@ button:disabled {
 .planning-grid .col-delete-btn:hover {
   color: #d32f2f;
 }
+
+.planning-grid .col-move-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0 2px;
+  vertical-align: middle;
+}
+
+.planning-grid .col-move-btn:hover {
+  color: #1976d2;
+}

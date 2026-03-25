@@ -3,6 +3,10 @@ export interface Ingredient {
   name: string;
   last_lot_number: string | null;
   is_highlighted?: boolean;
+  cost_price_cents: number | null;
+  cost_vat_rate: number | null;
+  cost_unit: string | null;
+  cost_package_size: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -10,6 +14,8 @@ export interface Ingredient {
 export interface Recipe {
   id: number;
   name: string;
+  cost_yield: number | null;
+  cost_yield_unit: string | null;
   created_at: string;
   updated_at: string;
   ingredients?: Ingredient[];
@@ -84,6 +90,18 @@ export interface OrderItem {
   recipe_name?: string;
   size: string;
   quantity: number;
+}
+
+export interface RecipeCostItem {
+  id: number;
+  recipe_id: number;
+  ingredient_id: number;
+  ingredient_name?: string;
+  quantity: number;
+  cost_price_cents?: number | null;
+  cost_vat_rate?: number | null;
+  cost_unit?: string | null;
+  cost_package_size?: number | null;
 }
 
 export interface PlanningColumn {

@@ -7,6 +7,7 @@ import recipesRouter from './routes/recipes';
 import ingredientsRouter from './routes/ingredients';
 import lotsRouter from './routes/lots';
 import planningRouter from './routes/planning';
+import costsRouter from './routes/costs';
 import logger from './utils/logger';
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/recipes', recipesRouter);
 app.use('/api/ingredients', ingredientsRouter);
 app.use('/api/lots', lotsRouter);
 app.use('/api/planning', planningRouter);
+app.use('/api/costs', costsRouter);
 
 app.use(errorHandler);
 

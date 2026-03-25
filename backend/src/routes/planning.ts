@@ -10,6 +10,8 @@ router.put('/:eventId', controller.updateEvent);
 router.delete('/:eventId', controller.deleteEvent);
 
 router.post('/:eventId/columns', controller.createColumn);
+router.patch('/:eventId/columns/reorder', controller.moveRecipeGroup);
+router.patch('/:eventId/columns/move', controller.moveColumn);
 router.delete('/:eventId/columns', controller.deleteColumn);
 router.post('/:eventId/orders', controller.createOrder);
 router.patch('/:eventId/orders/:orderId', controller.patchOrder);

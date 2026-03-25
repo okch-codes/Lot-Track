@@ -102,6 +102,10 @@ export const planningApi = {
     request<void>(`/planning/${eventId}/orders/${orderId}/items`, { method: 'PUT', body: JSON.stringify(data) }),
   createColumn: (eventId: number, recipeId: number, size: string) =>
     request<PlanningColumn>(`/planning/${eventId}/columns`, { method: 'POST', body: JSON.stringify({ recipe_id: recipeId, size }) }),
+  moveRecipeGroup: (eventId: number, recipeId: number, direction: 'left' | 'right') =>
+    request<void>(`/planning/${eventId}/columns/reorder`, { method: 'PATCH', body: JSON.stringify({ recipe_id: recipeId, direction }) }),
+  moveColumn: (eventId: number, recipeId: number, size: string, direction: 'left' | 'right') =>
+    request<void>(`/planning/${eventId}/columns/move`, { method: 'PATCH', body: JSON.stringify({ recipe_id: recipeId, size, direction }) }),
   deleteColumn: (eventId: number, recipeId: number, size: string) =>
     request<void>(`/planning/${eventId}/columns`, { method: 'DELETE', body: JSON.stringify({ recipe_id: recipeId, size }) }),
 };

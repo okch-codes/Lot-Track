@@ -8,13 +8,15 @@ interface Props {
   onUpsertItem: (orderId: number, recipeId: number, size: string, quantity: number) => Promise<void>;
   onDeleteOrder: (orderId: number) => void;
   onDeleteColumn: (recipeId: number, size: string) => void;
+  onMoveColumn: (recipeId: number, direction: 'left' | 'right') => void;
+  onMoveSize: (recipeId: number, size: string, direction: 'left' | 'right') => void;
 }
 
 type EditingCell = { orderId: number; field: string } | null;
 type SortKey = 'client_name' | 'delivery_date' | 'price_cents' | 'is_ready' | 'is_delivered' | 'is_paid';
 type SortDir = 'asc' | 'desc';
 
-export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertItem, onDeleteOrder, onDeleteColumn }: Props) {
+export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertItem, onDeleteOrder, onDeleteColumn, onMoveColumn, onMoveSize }: Props) {
   const [editing, setEditing] = useState<EditingCell>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +57,17 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
     }
     return groups;
   }, [columns]);
+
+  // Map each column to its position within its recipe group
+  const colGroupInfo = useMemo(() => {
+    const info = new Map<string, { idx: number; groupSize: number }>();
+    for (const g of recipeGroups) {
+      for (let i = 0; i < g.sizes.length; i++) {
+        info.set(`${g.recipe_id}_${g.sizes[i]}`, { idx: i, groupSize: g.sizes.length });
+      }
+    }
+    return info;
+  }, [recipeGroups]);
 
   // Sort orders
   const sortedOrders = useMemo(() => {
@@ -216,9 +229,15 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
           {/* Row 1: Recipe group headers */}
           <tr>
             <th className="sticky-col sortable" rowSpan={2} onClick={() => handleSort('client_name')}>Cliente{sortIndicator('client_name')}</th>
-            {recipeGroups.map(g => (
+            {recipeGroups.map((g, idx) => (
               <th key={g.recipe_id} colSpan={g.sizes.length} className="recipe-header">
+                {idx > 0 && (
+                  <button className="col-move-btn" onClick={() => onMoveColumn(g.recipe_id, 'left')}>&laquo;</button>
+                )}
                 {g.recipe_name}
+                {idx < recipeGroups.length - 1 && (
+                  <button className="col-move-btn" onClick={() => onMoveColumn(g.recipe_id, 'right')}>&raquo;</button>
+                )}
               </th>
             ))}
             <th rowSpan={2}>Extra</th>
@@ -232,18 +251,29 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
           </tr>
           {/* Row 2: Size sub-headers */}
           <tr>
-            {columns.map(col => (
-              <th key={`${col.recipe_id}_${col.size}`} className="size-header">
-                {col.size}
-                <button
-                  className="col-delete-btn"
-                  title={`Remove ${col.recipe_name} ${col.size}`}
-                  onClick={() => onDeleteColumn(col.recipe_id, col.size)}
-                >
-                  &times;
-                </button>
-              </th>
-            ))}
+            {columns.map(col => {
+              const gi = colGroupInfo.get(`${col.recipe_id}_${col.size}`);
+              const showLeft = gi && gi.groupSize > 1 && gi.idx > 0;
+              const showRight = gi && gi.groupSize > 1 && gi.idx < gi.groupSize - 1;
+              return (
+                <th key={`${col.recipe_id}_${col.size}`} className="size-header">
+                  {showLeft && (
+                    <button className="col-move-btn" onClick={() => onMoveSize(col.recipe_id, col.size, 'left')}>&lsaquo;</button>
+                  )}
+                  {col.size}
+                  {showRight && (
+                    <button className="col-move-btn" onClick={() => onMoveSize(col.recipe_id, col.size, 'right')}>&rsaquo;</button>
+                  )}
+                  <button
+                    className="col-delete-btn"
+                    title={`Remove ${col.recipe_name} ${col.size}`}
+                    onClick={() => onDeleteColumn(col.recipe_id, col.size)}
+                  >
+                    &times;
+                  </button>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

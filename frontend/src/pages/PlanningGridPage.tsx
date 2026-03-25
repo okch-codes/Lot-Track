@@ -77,6 +77,24 @@ export default function PlanningGridPage() {
     }
   }
 
+  async function handleMoveSize(recipeId: number, size: string, direction: 'left' | 'right') {
+    try {
+      await planningApi.moveColumn(id, recipeId, size, direction);
+      await reload();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
+  async function handleMoveColumn(recipeId: number, direction: 'left' | 'right') {
+    try {
+      await planningApi.moveRecipeGroup(id, recipeId, direction);
+      await reload();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
   async function handleDeleteColumn(recipeId: number, size: string) {
     if (!confirm(`Remove this product column? All quantities for it will be deleted.`)) return;
     try {
@@ -318,6 +336,8 @@ export default function PlanningGridPage() {
         onUpsertItem={handleUpsertItem}
         onDeleteOrder={handleDeleteOrder}
         onDeleteColumn={handleDeleteColumn}
+        onMoveColumn={handleMoveColumn}
+        onMoveSize={handleMoveSize}
       />
     </div>
   );

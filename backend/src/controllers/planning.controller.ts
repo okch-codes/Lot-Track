@@ -121,6 +121,43 @@ export async function createColumn(req: Request, res: Response, next: NextFuncti
   } catch (err) { next(err); }
 }
 
+export async function moveRecipeGroup(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!isPositiveInt(req.params.eventId)) {
+      return res.status(400).json({ error: 'Invalid eventId' });
+    }
+    const { recipe_id, direction } = req.body;
+    if (!isPositiveInt(recipe_id)) {
+      return res.status(400).json({ error: 'recipe_id is required' });
+    }
+    if (direction !== 'left' && direction !== 'right') {
+      return res.status(400).json({ error: 'direction must be "left" or "right"' });
+    }
+    await planningService.moveRecipeGroup(Number(req.params.eventId), recipe_id, direction);
+    res.status(204).send();
+  } catch (err) { next(err); }
+}
+
+export async function moveColumn(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!isPositiveInt(req.params.eventId)) {
+      return res.status(400).json({ error: 'Invalid eventId' });
+    }
+    const { recipe_id, size, direction } = req.body;
+    if (!isPositiveInt(recipe_id)) {
+      return res.status(400).json({ error: 'recipe_id is required' });
+    }
+    if (!isNonEmptyString(size, 50)) {
+      return res.status(400).json({ error: 'size is required' });
+    }
+    if (direction !== 'left' && direction !== 'right') {
+      return res.status(400).json({ error: 'direction must be "left" or "right"' });
+    }
+    await planningService.moveColumn(Number(req.params.eventId), recipe_id, size, direction);
+    res.status(204).send();
+  } catch (err) { next(err); }
+}
+
 export async function deleteColumn(req: Request, res: Response, next: NextFunction) {
   try {
     if (!isPositiveInt(req.params.eventId)) {
