@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as costsService from '../services/costs.service';
+import * as invoiceService from '../services/invoice.service';
 import { isPositiveInt } from '../utils/validate';
 
 export async function getIngredients(_req: Request, res: Response, next: NextFunction) {
@@ -61,5 +62,16 @@ export async function updateRecipeYield(req: Request, res: Response, next: NextF
     );
     if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
     res.json(recipe);
+  } catch (err) { next(err); }
+}
+
+export async function scanInvoice(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { image, media_type } = req.body;
+    if (!image || !media_type) {
+      return res.status(400).json({ error: 'image and media_type are required' });
+    }
+    const items = await invoiceService.scanInvoice(image, media_type);
+    res.json(items);
   } catch (err) { next(err); }
 }

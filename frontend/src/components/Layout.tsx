@@ -20,6 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <NavLink to="/ingredients" onClick={() => setMenuOpen(false)}>Ingredients</NavLink>
           <NavLink to="/lots" onClick={() => setMenuOpen(false)}>Lots</NavLink>
           <NavLink to="/planning" onClick={() => setMenuOpen(false)}>Planning</NavLink>
+          <NavLink to="/costs" onClick={() => setMenuOpen(false)}>Costs</NavLink>
         </div>
       </nav>
       <main className="main-content">{children}</main>

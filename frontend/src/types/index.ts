@@ -104,6 +104,14 @@ export interface RecipeCostData {
   items: RecipeCostItem[];
 }
 
+export interface InvoiceItem {
+  name: string;
+  price_cents: number;
+  vat_rate: number;
+  unit: string;
+  package_size: number;
+}
+
 export interface PlanningGridData {
   event: PlanningEvent;
   orders: Order[];

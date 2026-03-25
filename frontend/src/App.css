@@ -156,7 +156,8 @@ button:disabled {
 /* Tables */
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: white;
   border-radius: 6px;
   overflow: hidden;
@@ -174,6 +175,9 @@ button:disabled {
   background: #f8f9fa;
   font-weight: 600;
   font-size: 0.85rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
   text-transform: uppercase;
   color: #666;
 }
@@ -445,6 +449,7 @@ button:disabled {
 /* Table scroll wrapper */
 .table-wrapper {
   overflow-x: auto;
+  max-width: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -850,4 +855,177 @@ button:disabled {
 
 .planning-grid .col-move-btn:hover {
   color: #1976d2;
+}
+
+/* Tab bar */
+.tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 0;
+}
+
+.tab-bar button.tab,
+.tab-bar button.tab-active {
+  background: none;
+  color: #666;
+  border-radius: 4px 4px 0 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 0.5rem 1.2rem;
+}
+
+.tab-bar button.tab:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.tab-bar button.tab-active {
+  color: #2c3e50;
+  border-bottom-color: #3498db;
+  font-weight: 600;
+}
+
+/* Recipe pick list */
+.recipe-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.recipe-pick-item {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  background: white;
+  color: #333;
+  border: none;
+  border-bottom: 1px solid #eee;
+  border-radius: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.recipe-pick-item:last-child {
+  border-bottom: none;
+}
+
+.recipe-pick-item:hover {
+  background: #f5f5f5;
+}
+
+.recipe-pick-item.selected {
+  background: #eaf2fb;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Styled selects in tables */
+.data-table select {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background: white;
+  cursor: pointer;
+  max-width: 200px;
+}
+
+/* Drop zone for invoice scan */
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  color: #888;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.drop-zone:hover {
+  border-color: #3498db;
+}
+
+.invoice-preview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 4px;
+}
+
+.success {
+  color: #27ae60;
+  margin-bottom: 1rem;
+}
+
+/* Ingredient picker */
+.ing-picker {
+  position: relative;
+}
+
+.ing-picker-btn {
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  text-align: left;
+  width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.ing-picker-btn:hover {
+  background: #f9f9f9;
+}
+
+.ing-picker-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 10;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  width: 280px;
+  margin-top: 2px;
+}
+
+.ing-picker-dropdown input {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.ing-picker-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ing-picker-option {
+  padding: 0.4rem 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.ing-picker-option:hover {
+  background: #f5f5f5;
+}
+
+.ing-picker-option.selected {
+  background: #eaf2fb;
+  font-weight: 600;
 }

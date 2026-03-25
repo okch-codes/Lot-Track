@@ -1,4 +1,4 @@
-import { Recipe, Ingredient, Lot, LotHistoryEntry, PlanningEvent, Order, PlanningColumn, PlanningGridData } from '../types';
+import { Recipe, Ingredient, Lot, LotHistoryEntry, PlanningEvent, Order, PlanningColumn, PlanningGridData, RecipeCostData, InvoiceItem } from '../types';
 
 const BASE = '/api';
 
@@ -108,4 +108,21 @@ export const planningApi = {
     request<void>(`/planning/${eventId}/columns/move`, { method: 'PATCH', body: JSON.stringify({ recipe_id: recipeId, size, direction }) }),
   deleteColumn: (eventId: number, recipeId: number, size: string) =>
     request<void>(`/planning/${eventId}/columns`, { method: 'DELETE', body: JSON.stringify({ recipe_id: recipeId, size }) }),
+};
+
+export const costsApi = {
+  listIngredients: () => request<Ingredient[]>('/costs/ingredients'),
+  updateIngredient: (id: number, data: {
+    cost_price_cents?: number | null;
+    cost_vat_rate?: number | null;
+    cost_unit?: string | null;
+    cost_package_size?: number | null;
+  }) => request<Ingredient>(`/costs/ingredients/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  getRecipeCost: (recipeId: number) => request<RecipeCostData>(`/costs/recipes/${recipeId}`),
+  upsertCostItem: (recipeId: number, ingredientId: number, quantity: number) =>
+    request<void>(`/costs/recipes/${recipeId}/items`, { method: 'PUT', body: JSON.stringify({ ingredient_id: ingredientId, quantity }) }),
+  updateRecipeYield: (recipeId: number, cost_yield: number | null, cost_yield_unit: string | null) =>
+    request<Recipe>(`/costs/recipes/${recipeId}/yield`, { method: 'PATCH', body: JSON.stringify({ cost_yield, cost_yield_unit }) }),
+  scanInvoice: (image: string, media_type: string) =>
+    request<InvoiceItem[]>('/costs/scan-invoice', { method: 'POST', body: JSON.stringify({ image, media_type }) }),
 };
