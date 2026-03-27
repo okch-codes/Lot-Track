@@ -20,6 +20,7 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
   const [editing, setEditing] = useState<EditingCell>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [sortKey, setSortKey] = useState<SortKey>('delivery_date');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
@@ -38,9 +39,14 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
   }
 
   useEffect(() => {
-    if (editing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+    if (editing) {
+      if (editing.field === 'extra' && textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.select();
+      } else if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+      }
     }
   }, [editing]);
 
@@ -302,7 +308,27 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
                   {renderQuantityCell(order, col.recipe_id, col.size)}
                 </td>
               ))}
-              <td>{renderEditableCell(order.id, 'extra', order.extra ?? '')}</td>
+              <td className="extra-cell">
+                {editing?.orderId === order.id && editing?.field === 'extra' ? (
+                  <textarea
+                    ref={textareaRef}
+                    value={editValue}
+                    onChange={e => setEditValue(e.target.value)}
+                    onBlur={commitEdit}
+                    onKeyDown={e => { if (e.key === 'Escape') setEditing(null); }}
+                    className="cell-input cell-input-extra"
+                    rows={3}
+                  />
+                ) : (
+                  <span
+                    className="cell-display"
+                    onClick={() => startEdit(order.id, 'extra', order.extra ?? '')}
+                    style={{ whiteSpace: 'pre-line' }}
+                  >
+                    {order.extra || '\u00A0'}
+                  </span>
+                )}
+              </td>
               <td>
                 {editing?.orderId === order.id && editing?.field === 'delivery_date' ? (
                   <input

@@ -797,12 +797,12 @@ button:disabled {
   background: #fafafa;
 }
 
-.planning-grid tbody tr:nth-child(even):not(.totals-row) {
-  background: #f5f5f5;
+.planning-grid tbody tr:nth-child(odd):not(.totals-row) td {
+  background: #fff;
 }
 
-.planning-grid tbody tr:nth-child(even):not(.totals-row) .sticky-col {
-  background: #f5f5f5;
+.planning-grid tbody tr:nth-child(even):not(.totals-row) td {
+  background: #eef2f7;
 }
 
 .planning-grid .qty-cell,
@@ -835,6 +835,17 @@ button:disabled {
   width: 100%;
   box-sizing: border-box;
   outline: none;
+}
+
+.planning-grid .cell-input-extra {
+  resize: vertical;
+  font-family: inherit;
+  min-height: 3em;
+}
+
+.planning-grid .extra-cell {
+  white-space: normal;
+  max-width: 150px;
 }
 
 .planning-grid .cell-input-qty {
