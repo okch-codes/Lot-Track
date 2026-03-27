@@ -10,19 +10,29 @@ interface Props {
   onDeleteColumn: (recipeId: number, size: string) => void;
   onMoveColumn: (recipeId: number, direction: 'left' | 'right') => void;
   onMoveSize: (recipeId: number, size: string, direction: 'left' | 'right') => void;
+  highlightOrderId?: number | null;
+  onHighlightClear?: () => void;
 }
 
 type EditingCell = { orderId: number; field: string } | null;
 type SortKey = 'client_name' | 'delivery_date' | 'price_cents' | 'is_ready' | 'is_delivered' | 'is_paid';
 type SortDir = 'asc' | 'desc';
 
-export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertItem, onDeleteOrder, onDeleteColumn, onMoveColumn, onMoveSize }: Props) {
+export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertItem, onDeleteOrder, onDeleteColumn, onMoveColumn, onMoveSize, highlightOrderId, onHighlightClear }: Props) {
   const [editing, setEditing] = useState<EditingCell>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [sortKey, setSortKey] = useState<SortKey>('delivery_date');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
+  const headerRowRef = useRef<HTMLTableRowElement>(null);
+  const [headerRowHeight, setHeaderRowHeight] = useState(0);
+
+  useEffect(() => {
+    if (headerRowRef.current) {
+      setHeaderRowHeight(headerRowRef.current.offsetHeight);
+    }
+  });
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
@@ -233,7 +243,7 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
       <table className="planning-grid">
         <thead>
           {/* Row 1: Recipe group headers */}
-          <tr>
+          <tr ref={headerRowRef}>
             <th className="sticky-col sortable" rowSpan={2} onClick={() => handleSort('client_name')}>Cliente{sortIndicator('client_name')}</th>
             {recipeGroups.map((g, idx) => (
               <th key={g.recipe_id} colSpan={g.sizes.length} className="recipe-header">
@@ -264,7 +274,7 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
               const showLeft = gi && gi.groupSize > 1 && gi.idx > 0;
               const showRight = gi && gi.groupSize > 1 && gi.idx < gi.groupSize - 1;
               return (
-                <th key={`${col.recipe_id}_${col.size}`} className="size-header">
+                <th key={`${col.recipe_id}_${col.size}`} className="size-header" style={{ top: headerRowHeight }}>
                   {showLeft && (
                     <button className="col-move-btn" onClick={() => onMoveSize(col.recipe_id, col.size, 'left')}>&lsaquo;</button>
                   )}
@@ -299,7 +309,16 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
           )}
           {/* Order rows */}
           {sortedOrders.map(order => (
-            <tr key={order.id}>
+            <tr
+              key={order.id}
+              className={highlightOrderId === order.id ? 'highlight-row' : ''}
+              ref={el => {
+                if (highlightOrderId === order.id && el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  setTimeout(() => onHighlightClear?.(), 15000);
+                }
+              }}
+            >
               <td className="sticky-col">
                 {renderEditableCell(order.id, 'client_name', order.client_name)}
               </td>

@@ -24,6 +24,7 @@ export default function PlanningGridPage() {
 
   // Add-order state
   const [newClient, setNewClient] = useState('');
+  const [highlightOrderId, setHighlightOrderId] = useState<number | null>(null);
 
   const id = Number(eventId);
 
@@ -109,8 +110,9 @@ export default function PlanningGridPage() {
     e.preventDefault();
     if (!newClient.trim()) return;
     try {
-      await planningApi.createOrder(id, newClient.trim());
+      const order = await planningApi.createOrder(id, newClient.trim());
       setNewClient('');
+      setHighlightOrderId(order.id);
       await reload();
     } catch (err: any) {
       setError(err.message);
@@ -338,6 +340,8 @@ export default function PlanningGridPage() {
         onDeleteColumn={handleDeleteColumn}
         onMoveColumn={handleMoveColumn}
         onMoveSize={handleMoveSize}
+        highlightOrderId={highlightOrderId}
+        onHighlightClear={() => setHighlightOrderId(null)}
       />
     </div>
   );
