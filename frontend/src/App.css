@@ -746,6 +746,27 @@ button:disabled {
 .planning-grid .recipe-header {
   background: #e8e8e8;
   border-bottom: none;
+  white-space: normal;
+}
+
+.planning-grid .recipe-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.planning-grid .recipe-header-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planning-grid .recipe-header-name:hover {
+  white-space: normal;
+  overflow: visible;
+  word-break: break-word;
 }
 
 .planning-grid .size-header {
@@ -774,6 +795,14 @@ button:disabled {
 
 .planning-grid .totals-row .sticky-col {
   background: #fafafa;
+}
+
+.planning-grid tbody tr:nth-child(even):not(.totals-row) {
+  background: #f5f5f5;
+}
+
+.planning-grid tbody tr:nth-child(even):not(.totals-row) .sticky-col {
+  background: #f5f5f5;
 }
 
 .planning-grid .qty-cell,

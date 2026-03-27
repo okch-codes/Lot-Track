@@ -231,13 +231,15 @@ export default function PlanningGrid({ orders, columns, onPatchOrder, onUpsertIt
             <th className="sticky-col sortable" rowSpan={2} onClick={() => handleSort('client_name')}>Cliente{sortIndicator('client_name')}</th>
             {recipeGroups.map((g, idx) => (
               <th key={g.recipe_id} colSpan={g.sizes.length} className="recipe-header">
-                {idx > 0 && (
-                  <button className="col-move-btn" onClick={() => onMoveColumn(g.recipe_id, 'left')}>&laquo;</button>
-                )}
-                {g.recipe_name}
-                {idx < recipeGroups.length - 1 && (
-                  <button className="col-move-btn" onClick={() => onMoveColumn(g.recipe_id, 'right')}>&raquo;</button>
-                )}
+                <div className="recipe-header-content">
+                  {idx > 0 && (
+                    <button className="col-move-btn" onClick={() => onMoveColumn(g.recipe_id, 'left')}>&laquo;</button>
+                  )}
+                  <span className="recipe-header-name">{g.recipe_name}</span>
+                  {idx < recipeGroups.length - 1 && (
+                    <button className="col-move-btn" onClick={() => onMoveColumn(g.recipe_id, 'right')}>&raquo;</button>
+                  )}
+                </div>
               </th>
             ))}
             <th rowSpan={2}>Extra</th>
